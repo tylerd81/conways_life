@@ -1,0 +1,15 @@
+body {
+    --console-text-color: #66ff33;
+    background-color: #000;
+    font-family: 'Open Sans', sans-serif;
+
+}
+
+.console-text {
+    color: var(--console-text-color);
+    text-shadow: 1px 1px #2db300;
+}
+
+#gameboard {
+    border: solid 1px var(--console-text-color);
+}
