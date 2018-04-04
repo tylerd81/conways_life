@@ -1,21 +1,10 @@
-function CreateGrid(num_rows, num_cols) {
+/**
+ * Create the data structure that is used for the game
+ */
 
-    let grid = [];
+function CreateGrid(num_rows, num_cols, start_grid) {
 
-    const create_grid = function create_grid() {
-
-        for(let row = 0; row < num_rows; row++) {
-            grid.push([]); // add a row
-
-            for(let col = 0; col < num_cols; col++) {
-                grid[row].push(0);
-            }
-        }
-        grid.num_rows = num_rows;
-        grid.num_cols = num_cols;
-
-        return grid;
-    };
+    let grid = [];    
 
     const check_for_valid_index = function check_for_valid_index(row, col) {
         if(row >= num_rows || col >= num_cols) {
@@ -59,39 +48,42 @@ function CreateGrid(num_rows, num_cols) {
         }
     };
 
+    // Create the grid
 
-    const reset = function reset() {
-        grid = [];
-        create_grid();
-    };
+    for(let row = 0; row < num_rows; row++) {
+        grid.push([]); // add a row
 
-    const init = function init() {
+        for(let col = 0; col < num_cols; col++) {
+            grid[row].push(0);
+        }
+    }
+    grid.num_rows = num_rows;
+    grid.num_cols = num_cols;
 
-        create_grid();
-    };
-
-    init();
+    // start_grid is an array of (row, col) that will 
+    // start out alive
+    if(start_grid) {
+        start_grid.forEach((p) => grid[p.row][p.col] = 1);
+    }        
 
     return {
         toggle,
         set,
         get,
-        reset,
-        grid, //should remove
         num_cols,
         num_rows,
         dump_grid, //debugging
     };
 };
 
-function StartGame(gameboard, interval) {
+
+function RunSimulation(gameboard) {
 
     let generation = 0;
     let gen_without_change = 0;
     let generation_stall = 5; // how many non-changing generations before
                               // quitting.
-
-    let updateInterval = null;
+    
     let is_stalled = false;
     
     const update_grid = function update_grid() {        
@@ -215,11 +207,24 @@ function StartGame(gameboard, interval) {
 }
 
 const game = (function() {
-    let rows = 8;
-    let cols = 8;
+    let start_num_rows = 20;
+    let start_num_cols = 20;
+    let display = null;
+    let game = null;
+    let grid = null;
 
     console.log("Starting game.");
-    let grid = CreateGrid(rows, cols);
+
+    let points = [ 
+        {row: 0, col: 0},
+        {row: 0, col: 1},
+        {row: 0, col: 2},
+        {row: 1, col: 0},
+        {row: 1, col: 1},
+    ];   
+    
+    
+    /*
     grid.set(0,0,1);    
     grid.set(0,1,1);
     grid.set(0,2,1);
@@ -240,10 +245,15 @@ const game = (function() {
     grid.set(2,6,1);
     grid.set(2,7,1);
     grid.set(2,3,1);
-
-
-    const display = CreateGameDisplay("gameboard", rows, cols);
-    const game = StartGame(grid, 0);
+    */
+   
+    display = CreateGameDisplay("gameboard", start_num_rows, start_num_cols);
+    
+    const init = function init(points) {
+        console.log('Initializing game.');
+        grid = CreateGrid(start_num_rows, start_num_cols, points);
+        game = RunSimulation(grid);
+    }
 
     let generation = 0;
 
@@ -269,13 +279,35 @@ const game = (function() {
             }    
 
             generation = game.next();
-        }, 1000);
+        }, 500);
     };
 
-    return { start };
+    document.getElementById('start-button').addEventListener('click',  function() {
+
+        // loop through the html table and find the living cells to create
+        // the point array.
+        let points = [];
+        let html_cells = document.querySelectorAll("td[data-cell_status = 'alive']");
+
+        html_cells.forEach( function(cell) {
+            let id = Number.parseInt(cell.id);
+            let row = Math.floor(id / start_num_cols);
+            let col = (id % start_num_cols) - 1;
+
+            if(!(row < start_num_rows && col < start_num_cols)) {
+                throw('Error grabbing cell data from html table.');
+            }
+
+            points.push({row: row, col: col});
+        });
+
+        if(points.length == 0) {
+            points = null;
+        }else{
+            console.table(points);
+        }
+        init(points);          
+        start();
+    });    
 })();
 
-document.getElementById('start-button').addEventListener('click',  function() {
-    
-    game.start();
-});

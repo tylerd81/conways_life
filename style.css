@@ -12,4 +12,9 @@ body {
 
 #gameboard {
     border: solid 1px var(--console-text-color);
+    border-collapse: collapse;
+}
+
+#gameboard td {
+    border: solid 1px var(--console-text-color);
 }

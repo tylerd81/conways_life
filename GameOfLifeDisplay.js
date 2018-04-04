@@ -14,15 +14,33 @@ function CreateGameDisplay(table_id, num_rows, num_cols) {
 
         let id = 0;
 
+        //create the actual table
         for(let row = 0; row < num_rows; row++) {
 
             let tr = document.createElement('tr');
+
             for(let col = 0; col < num_cols; col++) {
 
                 let td = document.createElement('td');
                 td.id = id++;
                 td.width = cell_width;
                 td.height = cell_height;
+                td.dataset.cell_status = 'dead';
+
+                td.addEventListener('click', function toggle_td_color() {
+                    
+                    if(td.dataset.cell_status === 'dead') {
+                        td.dataset.cell_status = 'alive';
+                        console.log('Cell is now ' + td.dataset.cell_status);
+                        td.style.backgroundColor = cell_color;
+
+                    }else{                        
+                        td.dataset.cell_status = 'dead';
+                        console.log('Cell is now ' + td.dataset.cell_status);
+                        td.style.backgroundColor = '#000';
+                    }
+                });
+
                 tr.appendChild(td);
             }
             table.appendChild(tr);
