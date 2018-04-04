@@ -87,25 +87,27 @@ function CreateGrid(num_rows, num_cols) {
 function StartGame(gameboard, interval) {
 
     let generation = 0;
-    let last_num_changes = 0;
+    let gen_without_change = 0;
     let generation_stall = 5; // how many non-changing generations before
                               // quitting.
 
     let updateInterval = null;
-
-    //gameboard.dump_grid();
+    let is_stalled = false;
     
     const update_grid = function update_grid() {        
         generation++;
 
         // end the simulation if there haven't been any changes
-        if(last_num_changes == 0 && generation > generation_stall) {
-            console.log('No changes, ending.');
-            clearInterval(updateInterval);
+        if(gen_without_change >= generation_stall) {
+            console.log('No changes, ending.');            
+            is_stalled = true;    
+            return;
         }
 
-        for(let row = 0; row < gameboard.num_rows; row++) {
+        let changes = 0;
 
+        for(let row = 0; row < gameboard.num_rows; row++) {
+            
             for(let col = 0; col < gameboard.num_cols; col++) {
                 let num_nbors = 0;
                 let val = 0;
@@ -169,57 +171,111 @@ function StartGame(gameboard, interval) {
                     if(num_nbors < 2) {
                         // cell dies lonely
                         gameboard.set(row, col, 0);
+                        changes++;
                     }else if(num_nbors > 3) {
                         // cell   dies overpopulation
                         gameboard.set(row, col, 0);
+                        changes++;
                     }
                 }else{
 
                     //dead cell
                     if(num_nbors === 3) {
                         gameboard.set(row, col, 1);
+                        changes++;
                     }
                 }
             }
+            
             console.log(`Generation: ${generation}.`);
         };
-        gameboard.dump_grid();
 
+        if(changes === 0) {
+            gen_without_change++;
+        }else{
+            gen_without_change = 0;
+        }
     };
 
-    const stop = function stop() {
-        clearInterval(update_grid);
-    };
-
-    const start = function start() {
-        updateInterval = setInterval(update_grid, interval);
+    const next = function next() {
+        update_grid();
+        return generation;
     };
 
     const get_generation = function get_generation() {
         return generation;
     };   
 
-    return {}
+    const get_is_stalled = function() {
+        return is_stalled;
+    };
+
+    return {next, get_generation, get_is_stalled};
 
 }
 
-(function() {
+const game = (function() {
+    let rows = 8;
+    let cols = 8;
+
     console.log("Starting game.");
-    let grid = CreateGrid(5,5);
+    let grid = CreateGrid(rows, cols);
     grid.set(0,0,1);    
     grid.set(0,1,1);
     grid.set(0,2,1);
+    grid.set(0,3,1);
+    grid.set(0,4,1);
     grid.set(1,0,1);
     grid.set(1,1,1);
+    grid.set(1,2,1);
+    grid.set(1,3,1);
+    grid.set(1,4,1);
+    grid.set(1,5,1);
+    grid.set(1,6,1);
     grid.set(2,0,1);
+    grid.set(2,1,1);
+    grid.set(2,2,1);
+    grid.set(2,4,1);
+    grid.set(2,5,1);
+    grid.set(2,6,1);
+    grid.set(2,7,1);
+    grid.set(2,3,1);
 
-    const display = CreateGameDisplay(gameboard, 5, 5);
-    StartGame(grid, 0);
 
-    setInterval( function() {
+    const display = CreateGameDisplay("gameboard", rows, cols);
+    const game = StartGame(grid, 0);
 
-    })
+    let generation = 0;
 
+    const start = function() {
+        let timer = setInterval( function() {
+            if(game.get_is_stalled() === true) {
+                console.log('Game ending...');
+                clearInterval(timer);
+                return;
+            }else{
+                console.log(game.is_stalled);
+            }
+            // update display timer
+            console.log('Updating display. Generation: ' + generation );
+            for(let row = 0; row < grid.num_rows; row++) {
+                for(let col = 0; col < grid.num_cols; col++) {
+                    if(grid.get(row, col) === 1) {
+                        display.set(row, col);
+                    }else{
+                        display.set(row, col, "#000");
+                    }
+                }
+            }    
+
+            generation = game.next();
+        }, 1000);
+    };
+
+    return { start };
 })();
 
-
+document.getElementById('start-button').addEventListener('click',  function() {
+    
+    game.start();
+});
