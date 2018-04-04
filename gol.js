@@ -2,6 +2,10 @@ function CreateGameBoard(table_id, num_rows, num_cols) {
 
     let table = document.getElementById(table_id);
 
+    if(!table_id || table == null) {
+        throw Error('Cannot get the table');
+    }
+
     const cell_height = "10px";
     const cell_width = "10px";
     const cell_color = "#66ff33";
@@ -27,7 +31,7 @@ function CreateGameBoard(table_id, num_rows, num_cols) {
 
     const calc_id = function calc_id(row, col) {
 
-        if(row > num_rows || col > num_cols) {
+        if(row > num_rows - 1 || col > num_cols - 1) {
             throw Error(`Invalid row or column value: ${row}, ${col}`);
         }
 
@@ -37,7 +41,8 @@ function CreateGameBoard(table_id, num_rows, num_cols) {
     const get_td = function(row, col) {
 
         let id = calc_id(row, col);
-        let td = document.getElementById(id);
+        let td = document.getElementById(Number(id).toString());
+        return td;
     };
 
     const set = function set(row, col, color) {
@@ -58,4 +63,4 @@ function CreateGameBoard(table_id, num_rows, num_cols) {
     create_game_board(table_id);
     return { set, clear };
 }
-const game_board = CreateGameBoard();
+const game_board = CreateGameBoard('gameboard', 30,30);
