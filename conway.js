@@ -100,9 +100,12 @@ function RunSimulation(gameboard) {
         }
 
         let changes = 0;
+    
+        //create a list of changes, change everything at once
 
         for(let row = 0; row < gameboard.num_rows; row++) {
-            
+            let change_list = [];
+
             for(let col = 0; col < gameboard.num_cols; col++) {
                 let num_nbors = 0;
                 let val = 0;
@@ -165,12 +168,16 @@ function RunSimulation(gameboard) {
                     // living cell
                     if(num_nbors < 2) {
                         // cell dies lonely
-                        gameboard.set(row, col, 0);
+                        //gameboard.set(row, col, 0);
+                        change_list.push({row: row, col: col, val: 0});
+                        //console.log(`Cell (${row}, ${col}) died.`);
                         changes++;
                         deaths++;
                     }else if(num_nbors > 3) {
                         // cell   dies overpopulation
-                        gameboard.set(row, col, 0);
+                        //gameboard.set(row, col, 0);
+                        change_list.push({row: row, col: col, val: 0});
+                        //console.log(`Cell (${row}, ${col}) died.`);
                         changes++;
                         deaths++;
                     }
@@ -179,12 +186,19 @@ function RunSimulation(gameboard) {
                     //dead cell
                     if(num_nbors === 3) {
                         //cell is born
-                        gameboard.set(row, col, 1);
+                        //console.log('Cell is born.');
+                        //gameboard.set(row, col, 1);
+                        change_list.push({row: row, col: col, val: 1});
                         changes++;
                         births++;
                     }
                 }
             }           
+            if(change_list.length != 0) {
+                change_list.forEach( function(p) {
+                    gameboard.set(p.row, p.col, p.val);
+                });
+            }
         };
 
         if(changes === 0) {
@@ -220,12 +234,12 @@ function RunSimulation(gameboard) {
 }
 
 const game = (function() {
-    let start_num_rows = 20;
-    let start_num_cols = 20;
+    let start_num_rows = 30;
+    let start_num_cols = 50;
     let display = null;
     let game = null;
     let grid = null;
-
+    let game_interval = 100;
     console.log("Starting game.");   
    
     display = CreateGameDisplay("gameboard", start_num_rows, start_num_cols);
@@ -233,6 +247,7 @@ const game = (function() {
     const init = function init(points) {
         console.log('Initializing game.');
         grid = CreateGrid(start_num_rows, start_num_cols, points);
+        //grid.set(0,0,1);
         game = RunSimulation(grid);
     }
 
@@ -262,7 +277,7 @@ const game = (function() {
             display.set_generation_counter(game.get_generation());
             display.set_birth_counter(game.get_births());
             display.set_death_counter(game.get_deaths());
-        }, 500);
+        }, game_interval);
     };
 
     document.getElementById('start-button').addEventListener('click',  function() {
@@ -275,7 +290,7 @@ const game = (function() {
         html_cells.forEach( function(cell) {
             let id = Number.parseInt(cell.id);
             let row = Math.floor(id / start_num_cols);
-            let col = (id % start_num_cols) - 1;
+            let col = (id % start_num_cols);
 
             if(!(row < start_num_rows && col < start_num_cols)) {
                 throw('Error grabbing cell data from html table.');
