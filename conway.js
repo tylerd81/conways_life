@@ -14,7 +14,7 @@ function CreateGrid(num_rows, num_cols) {
         return grid;
     };
 
-    const check_for_valid_index(row, col) {
+    const check_for_valid_index = function check_for_valid_index(row, col) {
         if(row >= num_rows || col >= num_cols) {
             throw Error(`Invalid row or column: ${row}, ${col}`);
         }
@@ -23,7 +23,7 @@ function CreateGrid(num_rows, num_cols) {
     const set = function set(row, col, val) {
         check_for_valid_index(row, col);
 
-        if(val !== 0 || val !== 1) {
+        if(val !== 0 && val !== 1) {
             throw Error(`Invalid value for grid: ${val}`);
         }
 
@@ -52,5 +52,29 @@ function CreateGrid(num_rows, num_cols) {
         create_grid();
     };
 
-    return { toggle, set, reset };
+    const init = function init() {
+
+        create_grid();
+    };
+
+    init();
+
+    return { toggle, set, get, reset, grid };
+};
+
+function StartGame(grid, interval) {
+
+    let generation = 0;
+    let last_num_changes = 0;
+    let generation_stall = 5; // how many non-changing generations before
+                              // quitting.
+
+    const update_grid = function update_grid() {
+        console.log('Updating grid...');
+    };
+
+    setInterval(update_grid, interval);
 }
+
+
+
