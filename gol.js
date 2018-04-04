@@ -1,4 +1,4 @@
-function CreateGameBoard(table_id, num_rows, num_cols) {
+function CreateGameDisplay(table_id, num_rows, num_cols) {
 
     let table = document.getElementById(table_id);
 
@@ -63,4 +63,4 @@ function CreateGameBoard(table_id, num_rows, num_cols) {
     create_game_board(table_id);
     return { set, clear };
 }
-const game_board = CreateGameBoard('gameboard', 30,30);
+//const game_board = CreateGameBoard('gameboard', 30,30);
