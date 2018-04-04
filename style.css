@@ -5,6 +5,11 @@ body {
 
 }
 
+#main-container {
+    width: 800px;
+    margin: 0 auto;
+}
+
 .console-text {
     color: var(--console-text-color);
     text-shadow: 1px 1px #2db300;

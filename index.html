@@ -8,18 +8,29 @@
     </head>
 
     <body>
-        <h1 class="console-text">Conway's Game Of Life</h1>
+        <div id="main-container">
+            <h1 class="console-text">Conway's Game Of Life</h1>
+        
+            <p class="console-text">
+                Click on the grid to place the initial 'cells'. Then click start
+                to begin the simulation.
+            </p>
 
-        <p class="console-text">
-            This is some console style text?
-        </p>
+            <table id="gameboard">
+                
+            </table>
+            <button id="start-button">Start</button>
 
-        <button id="start-button">Start</button>
-        <table id="gameboard">
+            <h2 class="console-text" id="death-count">Deaths: </h2>
+            <h2 class="console-text" id="generation-count">Generations: </h2>
+            <h2 class="console-text" id="birth-count">Births: </h2>
 
-        </table>
-        <script src="GameOfLifeDisplay.js"></script>
-        <script src="conway.js"></script>
+            <p id="game-over-text" class="console-text">
+
+            </p>
+            <script src="GameOfLifeDisplay.js"></script>
+            <script src="conway.js"></script>
+        </div>
     </body>
 </html>
 

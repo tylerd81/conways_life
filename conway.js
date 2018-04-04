@@ -86,6 +86,9 @@ function RunSimulation(gameboard) {
     
     let is_stalled = false;
     
+    let births = 0;
+    let deaths = 0;
+
     const update_grid = function update_grid() {        
         generation++;
 
@@ -164,22 +167,24 @@ function RunSimulation(gameboard) {
                         // cell dies lonely
                         gameboard.set(row, col, 0);
                         changes++;
+                        deaths++;
                     }else if(num_nbors > 3) {
                         // cell   dies overpopulation
                         gameboard.set(row, col, 0);
                         changes++;
+                        deaths++;
                     }
                 }else{
 
                     //dead cell
                     if(num_nbors === 3) {
+                        //cell is born
                         gameboard.set(row, col, 1);
                         changes++;
+                        births++;
                     }
                 }
-            }
-            
-            console.log(`Generation: ${generation}.`);
+            }           
         };
 
         if(changes === 0) {
@@ -198,11 +203,19 @@ function RunSimulation(gameboard) {
         return generation;
     };   
 
+    const get_deaths = function() {
+        return deaths;
+    };
+
+    const get_births = function() {
+        return births;
+    }
+
     const get_is_stalled = function() {
         return is_stalled;
     };
 
-    return {next, get_generation, get_is_stalled};
+    return {next, get_generation, get_is_stalled, get_deaths, get_births};
 
 }
 
@@ -213,39 +226,7 @@ const game = (function() {
     let game = null;
     let grid = null;
 
-    console.log("Starting game.");
-
-    let points = [ 
-        {row: 0, col: 0},
-        {row: 0, col: 1},
-        {row: 0, col: 2},
-        {row: 1, col: 0},
-        {row: 1, col: 1},
-    ];   
-    
-    
-    /*
-    grid.set(0,0,1);    
-    grid.set(0,1,1);
-    grid.set(0,2,1);
-    grid.set(0,3,1);
-    grid.set(0,4,1);
-    grid.set(1,0,1);
-    grid.set(1,1,1);
-    grid.set(1,2,1);
-    grid.set(1,3,1);
-    grid.set(1,4,1);
-    grid.set(1,5,1);
-    grid.set(1,6,1);
-    grid.set(2,0,1);
-    grid.set(2,1,1);
-    grid.set(2,2,1);
-    grid.set(2,4,1);
-    grid.set(2,5,1);
-    grid.set(2,6,1);
-    grid.set(2,7,1);
-    grid.set(2,3,1);
-    */
+    console.log("Starting game.");   
    
     display = CreateGameDisplay("gameboard", start_num_rows, start_num_cols);
     
@@ -262,12 +243,10 @@ const game = (function() {
             if(game.get_is_stalled() === true) {
                 console.log('Game ending...');
                 clearInterval(timer);
+                display.display_game_over();
                 return;
-            }else{
-                console.log(game.is_stalled);
             }
-            // update display timer
-            console.log('Updating display. Generation: ' + generation );
+            // update display timer            
             for(let row = 0; row < grid.num_rows; row++) {
                 for(let col = 0; col < grid.num_cols; col++) {
                     if(grid.get(row, col) === 1) {
@@ -279,6 +258,10 @@ const game = (function() {
             }    
 
             generation = game.next();
+
+            display.set_generation_counter(game.get_generation());
+            display.set_birth_counter(game.get_births());
+            display.set_death_counter(game.get_deaths());
         }, 500);
     };
 
@@ -303,11 +286,11 @@ const game = (function() {
 
         if(points.length == 0) {
             points = null;
-        }else{
-            console.table(points);
         }
         init(points);          
         start();
     });    
 })();
+
+
 
